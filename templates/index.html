@@ -2,48 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MCP WebApp</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <style>
-    #loader {
-      display: none;
-      text-align: center;
-      margin-top: 20px;
-    }
-    .spinner-border {
-      width: 2rem;
-      height: 2rem;
-    }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body class="container py-5">
+<body class="bg-light">
 
+<div class="container py-5">
   <h2 class="text-center mb-4">🚀 MCP Web Application</h2>
 
-  <div class="card shadow p-4">
-    <form method="POST" action="{{ url_for('index') }}" onsubmit="showLoader()">
-      <div class="mb-3">
-        <label class="form-label">Tell me how can I help?</label>
-        <input type="text" class="form-control" name="question" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">GitHub Repository URL</label>
-        <input type="url" class="form-control" name="repo_link" required>
-      </div>
-      <button type="submit" class="btn btn-success">Submit</button>
-    </form>
-  </div>
-
   <!-- Loader -->
-  <div id="loader">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p>Starting analysis...</p>
-  </div>
+  <div id="loader" class="loader d-none"></div>
 
-  <script>
-    function showLoader() {
-      document.getElementById("loader").style.display = "block";
-    }
-  </script>
+  <!-- Server Start Section -->
+  {% if not started %}
+    <div class="card shadow p-4 text-center">
+      <form method="POST" action="/start_server" onsubmit="logAndShowLoader('Starting MCP server...')">
+        <button type="submit" class="btn btn-primary btn-lg">Start MCP Server</button>
+      </form>
+    </div>
+  {% else %}
+    <div class="card shadow p-4">
+      <form method="POST" action="/ask" onsubmit="logAndShowLoader('Submitting question and repo link...')">
+        <div class="mb-3">
+          <label class="form-label">Tell me how can I help?</label>
+          <input type="text" class="form-control" name="question" placeholder="Enter your question" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Paste your GitHub repo</label>
+          <input type="url" class="form-control" name="repo_link" placeholder="https://github.com/..." required>
+        </div>
+        <button type="submit" class="btn btn-success">Submit</button>
+      </form>
+    </div>
+  {% endif %}
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

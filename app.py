@@ -22,6 +22,7 @@ def start_server():
     """Start MCP server"""
     global started, pid_info
     if not started:
+        # Example: start your MCP server (repo_analyzer_mcp.py)
         process = subprocess.Popen(["python", "repo_analyzer_mcp.py"])
         pid_info = process.pid
         started = True
@@ -29,47 +30,33 @@ def start_server():
 
 @app.route("/ask", methods=["POST"])
 def ask():
-    """Submit first question + repo link, then redirect to chat page"""
+    """Submit first question + repo link, then go to chat page"""
     q = request.form["question"]
     repo = request.form["repo_link"]
 
-    # First call with repo
+    # Call Mistral
     answer = ask_mistral(q, repo)
-    if answer:
-        answer = str(answer).replace("\\n", "\n")
 
-    # Save conversation
+    # Save conversation in session
     history = session.get("history", [])
     history.append((q, answer))
     session["history"] = history
 
-    return redirect(url_for("chat"))
+    return render_template("chat.html", history=history)
 
-@app.route("/chat", methods=["GET", "POST"])
+@app.route("/chat", methods=["POST"])
 def chat():
-    """Chat page (GET shows history, POST adds new Q/A then redirects)"""
-    if request.method == "POST":
-        q = request.form["question"]
+    """Submit follow-up question in chat"""
+    q = request.form["question"]
 
-        # Follow-up call without repo (Mistral keeps context internally)
-        answer = ask_mistral(q)
-        if answer:
-            answer = str(answer).replace("\\n", "\n")
+    # Call Mistral
+    answer = ask_mistral(q)
 
-        history = session.get("history", [])
-        history.append((q, answer))
-        session["history"] = history
+    history = session.get("history", [])
+    history.append((q, answer))
+    session["history"] = history
 
-        return redirect(url_for("chat"))
-
-    # GET → just show chat page
-    return render_template("chat.html", history=session.get("history", []))
-
-@app.route("/reset")
-def reset():
-    """Start fresh chat"""
-    session.clear()
-    return redirect(url_for("index"))
+    return render_template("chat.html", history=history)
 
 # ----------- RUN ------------
 

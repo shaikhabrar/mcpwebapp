@@ -32,7 +32,7 @@
     {% endfor %}
   </div>
 
-  <form id="chatForm" method="POST" action="{{ url_for('chat') }}">
+  <form id="chatForm" method="POST" action="{{ url_for('chat') }}" class="mb-3">
     <div class="input-group">
       <input type="text" name="question" class="form-control" placeholder="Type your question..." required>
       <button type="submit" class="btn btn-primary">Send</button>
@@ -47,7 +47,7 @@
     <p>Waiting for response...</p>
   </div>
 
-  <a href="{{ url_for('reset') }}" class="btn btn-danger mt-3">New Chat</a>
+  <a href="{{ url_for('index') }}" class="btn btn-danger mt-3">New Chat</a>
 
   <script>
     // Show loader when form is submitted
