@@ -13,8 +13,9 @@ pid_info = None
 @app.route("/")
 def index():
     """Landing page: Start server or ask question"""
-    # Clear chat history on fresh visit
+    # Clear chat history + repo on fresh visit
     session.pop("history", None)
+    session.pop("repo_link", None)
     return render_template("index.html", started=started, pid_info=pid_info)
 
 @app.route("/start_server", methods=["POST"])
@@ -34,7 +35,10 @@ def ask():
     q = request.form["question"]
     repo = request.form["repo_link"]
 
-    # Call Mistral
+    # Save repo in session
+    session["repo_link"] = repo
+
+    # Call Mistral with repo
     answer = ask_mistral(q, repo)
 
     # Save conversation in session
@@ -49,8 +53,11 @@ def chat():
     """Submit follow-up question in chat"""
     q = request.form["question"]
 
-    # Call Mistral
-    answer = ask_mistral(q)
+    # Retrieve repo from session
+    repo = session.get("repo_link", "")
+
+    # Call Mistral with same repo
+    answer = ask_mistral(q, repo)
 
     history = session.get("history", [])
     history.append((q, answer))
