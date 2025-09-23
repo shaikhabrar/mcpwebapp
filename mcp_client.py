@@ -1,4 +1,4 @@
-import requests
+import requests, json
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
@@ -21,10 +21,9 @@ def ask_mistral(question: str, repo_link: str = "") -> str:
     for line in response.iter_lines():
         if line:
             try:
-                data = line.decode("utf-8")
-                if '"response":' in data:
-                    text_piece = data.split('"response":"')[1].split('"')[0]
-                    output += text_piece
+                data = json.loads(line.decode("utf-8"))
+                if "response" in data:
+                    output += data["response"]
             except Exception:
                 pass
     return output.strip()
