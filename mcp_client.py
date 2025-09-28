@@ -5,17 +5,22 @@ OLLAMA_URL = "http://localhost:11434/api/generate"
 def ask_mistral(question: str, repo_link: str = "") -> str:
     """
     Send a prompt to Mistral running in Ollama and get back a response.
-    If repo_link is provided, include it in the question.
+    If repo_link is provided, include it as context, but do not force 'explain'.
     """
-    full_prompt = question
     if repo_link:
-        full_prompt += f"\n\nThe GitHub repo is here: {repo_link}. Please analyze it and explain."
+        full_prompt = f"You have access to this GitHub repo: {repo_link}.\n\nUser question: {question}"
+    else:
+        full_prompt = question
 
     response = requests.post(
         OLLAMA_URL,
         json={"model": "mistral", "prompt": full_prompt},
         stream=True
     )
+    """Previos logic"""
+    """if repo_link: full_prompt += f"The GitHub repo is here: {repo_link}. Please analyze it and explain." 
+    response = requests.post( OLLAMA_URL, json={"model": "mistral", "prompt": full_prompt}, stream=True ) """
+
 
     output = ""
     for line in response.iter_lines():
